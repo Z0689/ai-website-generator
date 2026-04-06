@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI网站生成器 - 智能网页设计工具</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部 -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>🎨 AI SiteCraft</h1>
+                    <p>智能网站生成平台</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-ghost" id="conversationBtn" title="查看对话历史">
+                        💬 对话
+                    </button>
+                    <button class="btn btn-ghost" id="toggleViewBtn">
+                        <span id="viewIcon">📚</span>
+                        <span id="viewText">历史项目</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 创建模式 -->
+            <div class="create-mode" id="createMode">
+                <div class="content-grid">
+                    <!-- 输入面板 -->
+                    <div class="input-section">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h2>📝 网站描述</h2>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary" id="generateBtn">
+                                        <span id="btnText">🚀 生成网站</span>
+                                    </button>
+                                    <button class="btn btn-secondary" id="clearBtn">清空</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <textarea 
+                                    id="siteDescription" 
+                                    placeholder="详细描述您想要的网站，例如：创建一个科技公司官网，包含关于我们、产品展示、团队介绍和联系方式。要求现代简洁风格，蓝色主题..."
+                                ></textarea>
+                            </div>
+
+                            <div class="upload-section">
+                                <div class="upload-header">
+                                    <span>📁 上传文件（可选）</span>
+                                    <small>支持图片、PDF、Word文档</small>
+                                </div>
+                                <div class="upload-area" id="uploadArea">
+                                    <input type="file" id="fileUpload" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" style="display: none;">
+                                    <div class="upload-content">
+                                        <div class="upload-icon">📎</div>
+                                        <p>点击上传或拖拽文件到这里</p>
+                                        <button class="btn btn-outline upload-btn">选择文件</button>
+                                    </div>
+                                    <div class="file-preview" id="filePreview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 预览面板 -->
+                    <div class="preview-section">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h2>👁️ 实时预览</h2>
+                                <div class="preview-tabs">
+                                    <button class="tab-btn active" data-tab="preview">预览</button>
+                                    <button class="tab-btn" data-tab="code">代码</button>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-content">
+                                <div class="tab-content active" id="previewTab">
+                                    <div class="preview-container" id="previewContainer">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">💡</div>
+                                            <h3>开始创建您的网站</h3>
+                                            <p>在左侧输入网站描述，AI将为您生成完整的单页面网站</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-content" id="codeTab">
+                                    <div class="code-container">
+                                        <div class="code-header">
+                                            <span>生成的HTML代码</span>
+                                            <div class="code-actions">
+                                                <button class="btn btn-sm" id="copyCodeBtn">复制代码</button>
+                                                <button class="btn btn-sm" id="downloadBtn">下载HTML</button>
+                                            </div>
+                                        </div>
+                                        <pre class="code-preview" id="codePreview"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史模式 -->
+            <div class="history-mode" id="historyMode" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2>📚 历史项目</h2>
+                        <div class="history-controls">
+                            <div class="search-box">
+                                <input type="text" id="projectSearch" placeholder="搜索项目...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="projects-grid" id="projectsGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">📁</div>
+                            <h3>暂无项目</h3>
+                            <p>创建的网站将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目编辑模态框 -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑项目</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>项目名称</label>
+                    <input id="modalTitle" type="text" placeholder="修改项目名称..." />
+                </div>
+                <div class="form-group">
+                    <label>项目描述</label>
+                    <textarea id="modalDescription" rows="4" placeholder="修改网站描述..."></textarea>
+                </div>
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <label>创建时间:</label>
+                        <span id="modalCreatedAt"></span>
+                    </div>
+                    <div class="meta-item">
+                        <label>更新时间:</label>
+                        <span id="modalUpdatedAt"></span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="regenerateBtn">重新生成</button>
+                    <button class="btn btn-secondary" id="viewProjectBtn">查看项目</button>
+                    <button class="btn btn-danger" id="deleteBtn">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 对话历史模态框 -->
+    <div class="modal" id="conversationModal" style="display: none;">
+        <div class="modal-content conversation-modal">
+            <div class="modal-header">
+                <h3>对话历史</h3>
+                <button class="close-btn" id="closeConversationModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="conversation-panel">
+                    <!-- 对话列表 -->
+                    <div class="conversation-list-section">
+                        <div class="section-header">
+                            <h4>对话列表</h4>
+                            <button class="btn btn-sm btn-primary" id="newConversationBtn">新建</button>
+                        </div>
+                        <div class="conversation-search">
+                            <input type="text" id="conversationSearch" placeholder="搜索对话...">
+                        </div>
+                        <div class="conversation-list" id="conversationList">
+                            <div class="empty-state">
+                                <p>暂无对话记录</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 对话详情 -->
+                    <div class="conversation-detail-section">
+                        <div class="section-header">
+                            <h4 id="conversationTitle">选择对话查看</h4>
+                            <div class="conversation-actions">
+                                <button class="btn btn-sm" id="toggleFavoriteBtn" title="收藏">⭐</button>
+                                <button class="btn btn-sm" id="exportConversationBtn" title="导出">📥</button>
+                                <button class="btn btn-sm btn-danger" id="deleteConversationBtn" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="conversation-messages" id="conversationMessages">
+                            <div class="empty-state">
+                                <p>选择一个对话查看消息</p>
+                            </div>
+                        </div>
+                        <div class="conversation-input">
+                            <textarea id="messageInput" placeholder="输入消息继续对话..."></textarea>
+                            <button class="btn btn-primary" id="sendMessageBtn">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 生成进度模态框 -->
+    <div class="modal" id="generatingModal" style="display: none;">
+        <div class="modal-content generating-modal">
+            <div class="modal-header">
+                <h3>正在生成网站...</h3>
+            </div>
+            <div class="modal-body">
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div class="generating-logs" id="generatingLogs"></div>
+                <div class="generating-actions">
+                    <button class="btn btn-danger" id="cancelGeneratingBtn">中断生成</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录/注册模态框 -->
+    <div class="modal" id="loginModal" style="display: none;">
+        <div class="modal-content" id="loginModalContent">
+            <div class="modal-header">
+                <h3 id="authModalTitle">登录</h3>
+                <button class="close-btn" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>邮箱或用户名</label>
+                    <input id="authUsername" type="text" placeholder="用户名或邮箱" />
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input id="authPassword" type="password" placeholder="密码" />
+                </div>
+                <div class="form-actions">
+                    <label><input type="checkbox" id="rememberMe"> 记住我</label>
+                    <button class="btn btn-primary" id="loginSubmit">登录</button>
+                    <button class="btn" id="showRegisterBtn">注册</button>
+                </div>
+                <div id="authError" style="color: var(--error); margin-top: 0.5rem; display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增脚本 -->
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/api-client.js"></script>
+    <script src="scripts/conversation-manager.js"></script>
+    <script src="scripts/streaming-generator.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
